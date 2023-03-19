@@ -1,0 +1,40 @@
+databaseChangeLog:
+  - changeSet:
+      id: DEV-1
+      author: ApT3rn
+      changes:
+        - createTable:
+            tableName: books
+            remarks: Книги
+            columns:
+              - column:
+                  name: id
+                  type: integer
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  remarks: Название
+                  type: varchar(255)
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: author
+                  remarks: Автор
+                  type: varchar(255)
+              - column:
+                  name: publisher
+                  remarks: Издательство
+                  type: varchar(255)
+              - column:
+                  name: years
+                  remarks: Год_издания
+                  type: Integer
+              - column:
+                  name: genre
+                  remarks: Жанр
+                  type: varchar(50)
+
