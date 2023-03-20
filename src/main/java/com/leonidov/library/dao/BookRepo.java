@@ -10,4 +10,5 @@ public interface BookRepo {
     public boolean saveOrChange(Book book);
     public Optional<Book> getById(long id);
     public boolean deleteById(long id);
+    public Optional<Book> getByName(String name);
 }

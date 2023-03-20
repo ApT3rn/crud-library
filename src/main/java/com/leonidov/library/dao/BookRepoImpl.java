@@ -31,6 +31,8 @@ public class BookRepoImpl implements BookRepo {
             "INSERT INTO books (name, author, publisher, years, genre) VALUES (?, ?, ?, ?, ?)";
     private static final String SELECT_BOOK_BY_ID_SQL =
             "SELECT * FROM books WHERE id = %d";
+    private static final String SELECT_BOOK_BY_NAME_SQL =
+            "SELECT * FROM books WHERE name = '%s'";
     private static final String DELETE_BOOK_BY_ID_SQL =
             "DELETE FROM books WHERE id = %d";
 
@@ -88,8 +90,8 @@ public class BookRepoImpl implements BookRepo {
             throw new RuntimeException(e);
         } finally {
             try {
-                connection.close();
                 statement.close();
+                connection.close();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -116,8 +118,36 @@ public class BookRepoImpl implements BookRepo {
             throw new RuntimeException(e);
         } finally {
             try {
-                connection.close();
                 result.close();
+                connection.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return Optional.of(book);
+    }
+
+    @Override
+    public Optional<Book> getByName(String name) {
+        Book book = new Book();
+        try {
+            connection = DriverManager.getConnection(url, username, password);
+            statement = connection.prepareStatement(String.format(SELECT_BOOK_BY_NAME_SQL, name));
+            result = statement.executeQuery();
+            while (result.next()) {
+                book.setId(result.getInt(1));
+                book.setName(result.getString(2));
+                book.setAuthor(result.getString(3));
+                book.setPublisher(result.getString(4));
+                book.setYears(result.getInt(5));
+                book.setGenre(result.getString(6));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                result.close();
+                connection.close();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
