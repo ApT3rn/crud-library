@@ -2,24 +2,27 @@ package com.leonidov.library.controller;
 
 import com.leonidov.library.dao.BookRepo;
 import com.leonidov.library.model.Book;
+import com.leonidov.library.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @Controller
 public class BookController {
 
-    private final BookRepo bookRepo;
+    private final BookService bookService;
 
     @Autowired
-    public BookController(BookRepo bookRepo) {
-        this.bookRepo = bookRepo;
+    public BookController(BookService bookService) {
+        this.bookService = bookService;
     }
 
     @GetMapping("/")
     public String showAllBooks(Model model) {
-        model.addAttribute("allBooks", bookRepo.findAll());
+        model.addAttribute("allBooks", bookService.findAll());
         return "all-books";
     }
 
@@ -32,22 +35,23 @@ public class BookController {
 
     @PostMapping("/save")
     public String saveBook(@ModelAttribute("book") Book book) {
-        bookRepo.saveOrChange(book);
+        bookService.saveOrUpdate(book);
         return "redirect:/";
     }
 
     @GetMapping("/update")
     public String updateBook(@RequestParam(name = "bookId") int id,
                              Model model) {
-        if (bookRepo.getById(id).isEmpty())
+        Optional<Book> book = bookService.findById(id);
+        if (book.isEmpty())
             return "redirect:/";
-        model.addAttribute("book", bookRepo.getById(id).get());
+        model.addAttribute("book", book.get());
         return "book-info";
     }
 
     @RequestMapping("/delete")
     public String deleteBook(@RequestParam(name = "bookId") int id) {
-        bookRepo.deleteById(id);
+        bookService.deleteById(id);
         return "redirect:/";
     }
 }

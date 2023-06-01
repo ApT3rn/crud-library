@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class BookTest {
 
-    private Book book = new Book(1, "Имя", "Автор",
+    private final Book book = new Book(1, "Имя", "Автор",
             "Издательство", 2023, "Фантастика");
 
     @Test

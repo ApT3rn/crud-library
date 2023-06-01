@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,76 +15,108 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@ActiveProfiles("test")
 class BookRepoImplTest {
 
     @Autowired
     private BookRepo bookRepo;
 
-    private Book book1;
-    private Book book2;
-    private Book book3;
-
-    @BeforeEach
-    public void setUp() {
-        book1 = new Book("Book1", "Author1", "Publisher1", 2022, "Genre1");
-        book2 = new Book("Book2", "Author2", "Publisher2", 2021, "Genre2");
-        book3 = new Book("NewBook", "NewAuthor", "NewPublisher", 2023, "NewGenre");
-
-        bookRepo.saveOrChange(book1);
-        bookRepo.saveOrChange(book2);
-    }
-
-    @AfterEach
-    public void tearDown() {
-        bookRepo.deleteById(bookRepo.getByName(book1.getName()).get().getId());
-        bookRepo.deleteById(bookRepo.getByName(book2.getName()).get().getId());
-        bookRepo.deleteById(bookRepo.getByName(book3.getName()).get().getId());
-    }
 
     @Test
-    void testFindAll() {
-        List<Book> bookList = bookRepo.findAll();
+    void FindAll() {
+        Book book1 = new Book("Book1", "Author1",
+                "Publisher1", 2023, "Genre1");
+        Book book2 = new Book("Book2", "Author2",
+                "Publisher2", 2023, "Genre2");
+
+        this.bookRepo.save(book1);
+        this.bookRepo.save(book2);
+        List<Book> bookList = this.bookRepo.findAll();
 
         assertEquals(2, bookList.size());
-        assertEquals(bookList.get(0).getName(), book1.getName());
-        assertEquals(bookList.get(1).getName(), book2.getName());
+        assertEquals(book1.getName(), bookList.get(0).getName());
+        this.bookRepo.clear();
     }
 
     @Test
-    void testSaveOrChange() {
-        assertTrue(bookRepo.saveOrChange(book3));
+    void save() {
+        Book book = new Book("Book1", "Author1",
+                "Publisher1", 2023, "Genre1");
 
-        Optional<Book> optionalBook = bookRepo.getByName(book3.getName());
+        this.bookRepo.save(book);
+        List<Book> bookList = this.bookRepo.findAll();
 
-        assertTrue(optionalBook.isPresent());
-        assertEquals(book3.getName(), optionalBook.get().getName());
+        assertEquals(1, bookList.size());
+        assertEquals(book.getName(), bookList.get(0).getName());
+        this.bookRepo.clear();
     }
 
     @Test
-    void testGetById() {
-        Optional<Book> optionalBook = bookRepo.getById(bookRepo.getByName(book1.getName()).get().getId());
+    void update() {
+        Book book = new Book("Book1", "Author1",
+                "Publisher1", 2023, "Genre1");
 
-        assertTrue(optionalBook.isPresent());
-        assertEquals(book1.getName(), optionalBook.get().getName());
+        this.bookRepo.save(book);
+        List<Book> bookList = this.bookRepo.findAll();
+        this.bookRepo.update(new Book(bookList.get(0).getId(), "fiea",
+                "efoiw", "efwoi", 1, "fae"));
+        List<Book> bookList2 = this.bookRepo.findAll();
+
+        assertEquals(book.getName(), bookList.get(0).getName());
+        assertEquals(1, bookList2.get(0).getYears());
+        this.bookRepo.clear();
     }
 
     @Test
-    void testGetByName() {
-        Optional<Book> optionalBook = bookRepo.getByName(book1.getName());
+    void findById() {
+        Book book = new Book("Book1", "Author1",
+                "Publisher1", 2023, "Genre1");
 
-        assertTrue(optionalBook.isPresent());
-        assertEquals(book1.getName(), optionalBook.get().getName());
+        this.bookRepo.save(book);
+        Optional<Book> bookFromDb = this.bookRepo.findById(
+                this.bookRepo.findByName(book.getName()).get().getId());
+
+        assertEquals(book.getName(), bookFromDb.get().getName());
+        this.bookRepo.clear();
     }
 
     @Test
-    void testDeleteById() {
-        Optional<Book> optionalBook = bookRepo.getByName(book1.getName());
+    void findByName() {
+        Book book = new Book("Book1", "Author1",
+                "Publisher1", 2023, "Genre1");
 
-        assertTrue(bookRepo.deleteById(optionalBook.get().getId()));
+        this.bookRepo.save(book);
+        Optional<Book> bookFromDb = this.bookRepo.findByName(book.getName());
 
-        Optional<Book> optionalBook2 = bookRepo.getByName(book1.getName());
+        assertEquals(book.getName(), bookFromDb.get().getName());
+        this.bookRepo.clear();
+    }
 
-        assertEquals(0, optionalBook2.get().getId());
+    @Test
+    void deleteById() {
+        Book book = new Book("Book1", "Author1",
+                "Publisher1", 2023, "Genre1");
+
+        this.bookRepo.save(book);
+        List<Book> bookList1 = this.bookRepo.findAll();
+        this.bookRepo.deleteById(
+                this.bookRepo.findByName(book.getName()).get().getId());
+        List<Book> bookList2 = this.bookRepo.findAll();
+
+        assertEquals(1, bookList1.size());
+        assertEquals(0, bookList2.size());
+    }
+
+    @Test
+    void clear() {
+        Book book = new Book("Book1", "Author1",
+                "Publisher1", 2023, "Genre1");
+
+        this.bookRepo.save(book);
+        List<Book> bookList1 = this.bookRepo.findAll();
+        this.bookRepo.clear();
+        List<Book> bookList2 = this.bookRepo.findAll();
+
+        assertEquals(1, bookList1.size());
+        assertEquals(0, bookList2.size());
     }
 }
