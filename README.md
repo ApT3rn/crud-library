@@ -16,7 +16,7 @@
 
 ### Стек: 
 
-Java 17, Spring Framework(Book, Web, JDBC), Maven, Lombok, Liquibase, PostgreSQL
+Java 17, Spring Framework(Boot, Web, JDBC), Maven, Lombok, Liquibase, PostgreSQL
 
 ### Инструкция для запуска:
 
